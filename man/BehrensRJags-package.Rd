@@ -3,10 +3,10 @@
 \alias{BehrensRJags}
 \docType{package}
 \title{
-Behren's Behavior Model
+BehrensRJags
 }
 \description{
-Provides tools to analyze Behren's behavior model with R and JAGS
+Provides wrapper tools to analyze Timothy Behren's behavior model with R and JAGS.
 }
 \details{
 \tabular{ll}{
@@ -23,13 +23,10 @@ License: \tab UALR\cr
 Jeff Long, Keith Bush
 
 Maintainer: Jeff Long <jmlong@ualr.edu>
-~~ The author and/or maintainer of the package ~~
 }
 \references{
-~~ Literature or other references for background information ~~
+ - Behrens, Timothy E.J., Nat. Neurosci. Vol 10, 1214-1221, September 2007
 }
-~~ Optionally other standard keywords, one per line, from ~~
-~~ file KEYWORDS in the R documentation directory ~~
 \keyword{ package }
 \seealso{
 ~~ Optional links to other man pages, e.g. ~~

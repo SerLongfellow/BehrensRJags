@@ -1,7 +1,7 @@
 
-#' Run Behren's Model
+#' runModel
 #'
-#' Runs Behren's model through R2jags and plots means through time.
+#' Runs Behren's model with R2jags and plots means of expecation and volatility through time.
 #' @param modelFile The path to the text file containing the model
 #' @param dataFile The path to the csv file containing the data
 #' @param n.chains The amount of Markov chains to run
@@ -9,6 +9,8 @@
 #' @param n.burnin The amount of burnin samples to discard
 #' @keywords behren model
 #' @export
+#' @examples
+#' runModel(modelFile=".../model.txt", dataFile=".../data/subj_005_social.csv", n.chains=1, n.samples=15000, n.burnin=1000)
 
 runModel <- function(modelFile, dataFile, n.chains, n.samples, n.burnin) {
 
@@ -36,6 +38,7 @@ runModel <- function(modelFile, dataFile, n.chains, n.samples, n.burnin) {
   v.results <- jagsresults(x = model.fit, params = c('v'))
   v.mean <- v.results[,c('mean')]
   
+  dev.off()
   dev.new()
   
   par(mfrow = c(2,1))
