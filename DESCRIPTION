@@ -9,7 +9,6 @@ Description: Written as part of research for UALR's 2014 SUPER program under
     mentor Dr. Keith Bush. Provides a simple way to run tests on data
     using Timothy Behrens behavior model (Nat. Neurosci. Vol. 10, 1214-1221).
 Depends:
-    R2jags,
-    jagstools
+    R2jags
 SystemRequirements: jags (>= 3.3.0)
 License: UALR

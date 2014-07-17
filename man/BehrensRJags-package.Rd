@@ -16,8 +16,6 @@ Version: \tab 1.0\cr
 Date: \tab 2014-07-14\cr
 License: \tab UALR\cr
 }
-~~ An overview of how to use the package, including the ~~
-~~ most important functions ~~
 }
 \author{
 Jeff Long, Keith Bush
@@ -29,9 +27,31 @@ Maintainer: Jeff Long <jmlong@ualr.edu>
 }
 \keyword{ package }
 \seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
 }
 \examples{
-~~ simple examples of the most important functions ~~
+  ##### Set up ##########
+  install.packages('devtools')
+  library(devtools)
+  install_github('jmlong94/BehrensRJags')
+  
+  library(BehrensRJags)
+  BehrensRJags.init() #Only need to call this once, when first installed
+  #######################
+  
+  
+  ##### Run model with volatility as time-series variable #######
+  model.file <- '.../model.txt'
+  data.file <- '.../subj_005_social.csv'
+  
+  run.model(model.file = model.file, data.file = data.file, n.chains = 1, n.samples = 15000, n.burnin = 5000)
+  #############################################################################
+  
+  
+  ##### Run model with volatility as variable that is stationary in time ######
+  model.file <- '.../model-fixed-volatility.txt'
+  data.file <- '.../subj_005_social.csv'
+  
+  run.model(volatility.fixed = TRUE, model.file = model.file, data.file = data.file, n.chains = 1, n.samples = 15000, n.burnin = 5000)
+  #############################################################################
+  
 }
