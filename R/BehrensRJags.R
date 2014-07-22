@@ -1,4 +1,31 @@
 
+
+run.all.models <- function(data.dir, model.file, model.fixed.volatility.file, n.chains, n.samples, n.burnin){
+  
+  range <- c(5,6,8,10,11,13,15,16,18,19,20,seq(23,28),30,31,seq(33,36),39,40,seq(42,45))
+  
+  for(i in range){
+    
+    data.social.file <- NULL
+    data.house.file <- NULL
+    
+    if(i < 10){
+      data.social.file <- paste(data.dir, '/subj_00', i, '_social.csv', sep='')
+      data.house.file <- paste(data.dir, '/subj_00', i, '_house.csv', sep='')
+    }
+    else{
+      data.social.file <- paste(data.dir, '/subj_0', i, '_social.csv', sep='')
+      data.house.file <- paste(data.dir, '/subj_0', i, '_house.csv', sep='')
+    }
+    
+    run.model(model.file = model.file, data.file = data.social.file, n.chains = n.chains, n.samples = n.samples, n.burnin = n.burnin)
+    run.model(model.file = model.file, data.file = data.house.file, n.chains = n.chains, n.samples = n.samples, n.burnin = n.burnin)
+    run.model(volatility.fixed = TRUE, model.file = model.fixed.volatility.file, data.file = data.social.file, n.chains = n.chains, n.samples = n.samples, n.burnin = n.burnin)
+    run.model(volatility.fixed = TRUE, model.file = model.fixed.volatility.file, data.file = data.house.file, n.chains = n.chains, n.samples = n.samples, n.burnin = n.burnin)
+  }
+}
+
+
 #' run.model
 #'
 #' Runs Behren's model with R2jags and plots means of expecation and volatility through time.
