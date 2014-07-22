@@ -1,5 +1,11 @@
 
-
+#' run.all.models
+#'
+#' Automates process of running all the combinations of models for every subject
+#' 
+#' @export
+#' @examples
+#' run.all.models(data.dir = './data', model.file = 'model.txt', model.fixed.volatility = 'model-fixed-volatility.txt', n.chains = 1, n.samples = 15000, n.burnin = 5000)
 run.all.models <- function(data.dir, model.file, model.fixed.volatility.file, n.chains, n.samples, n.burnin){
   
   range <- c(5,6,8,10,11,13,15,16,18,19,20,seq(23,28),30,31,seq(33,36),39,40,seq(42,45))
