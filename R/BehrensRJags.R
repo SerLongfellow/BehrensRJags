@@ -85,6 +85,59 @@ compute.log.likelihoods <- function(evidence, expectation.mean.vts, expectation.
   return(list(log.likelihood.vts.sum, log.likelihood.vf.sum))
 }
 
+calculate.aic <- function(log.likelihood.vts, log.likelihood.vf){
+  
+}
+
+calculate.bic <- function(log.likelihood.vts, log.likelihood.vf){
+  
+}
+
+calculate.all.criterion <- function(model.results.dir){
+  
+  range <- c(5,6,8,10,11,13,15,16,18,19,20,seq(23,28),30,31,seq(33,36),39,40,seq(42,45))
+  
+  for(i in range){
+    
+    for(j in c(1,2)){
+      
+      if(j == 1)
+        type <- 'social'
+      else
+        type <- 'house'
+      
+      data.social.file <- NULL
+      data.house.file <- NULL
+      
+      if(subject.number < 10){
+        data.file <- paste(model.results.dir,'/subj_00',i,'_',type,'_results_',sep='')
+        model.data.file <- paste(model.data.dir,'/subj_00',i,'_',type,'.csv',sep='')
+      }
+      else{
+        data.file <- paste(model.results.dir,'/subj_0',i,'_',type,'_results_',sep='')
+        model.data.file <- paste(model.data.dir,'/subj_0',i,'_',type,'.csv',sep='')
+      }
+      
+      data.file.vts <- paste(data.file,'ts_vts.csv',sep='')
+      data.csv.vts <- read.csv(data.file.vts, header=FALSE)
+      data.mat.vts <- as.matrix(data.csv.vts)
+      
+      data.file.vf <- paste(data.file,'ts_vf.csv',sep='')
+      data.csv.vf <- read.csv(data.file.vf, header=FALSE)
+      data.mat.vf <- as.matrix(data.csv.vf)
+      
+      subject.evidence.csv <- read.csv(model.data.file, header=FALSE)
+      subject.evidence.mat <- as.matrix(subject.evidence.csv)
+      subject.evidence.mat[,3] <- replace(subject.evidence.mat[,3], subject.evidence.mat[,3] == 2, 0)
+      
+      likelihoods <- compute.log.likelihoods(evidence = subject.evidence.mat[,3], expectation.mean.vts = data.mat.vts[,1], expectation.sd.vts = data.mat.vts[,2], expectation.mean.vf = data.mat.vf[,1], expectation.sd.vf = data.mat.vf[,2])
+      
+      log.likelihood.vts.sum <- likelihoods[[1]]
+      log.likelihood.vf.sum <- likelihoods[[2]]
+    } 
+  }
+}
+
 
 #' run.all.models
 #'
