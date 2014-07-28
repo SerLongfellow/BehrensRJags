@@ -1,4 +1,91 @@
 
+
+plot.subject.results <- function(model.results.dir, model.data.dir, subject.number, type) {
+  
+  set.seed(1234)
+  
+  if(type != 'social' && type != 'house'){
+    print("Please input a valid type, social or house.")
+    return
+  }
+  
+  if(subject.number < 10){
+    data.file <- paste(model.results.dir,'/subj_00',subject.number,'_',type,'_results_',sep='')
+    model.data.file <- paste(model.data.dir,'/subj_00',subject.number,'_',type,'.csv',sep='')
+  }
+  else{
+    data.file <- paste(model.results.dir,'/subj_0',subject.number,'_',type,'_results_',sep='')
+    model.data.file <- paste(model.data.dir,'/subj_0',subject.number,'_',type,'.csv',sep='')
+  }
+  
+  data.file.vts <- paste(data.file,'ts_vts.csv',sep='')
+  data.csv.vts <- read.csv(data.file.vts, header=FALSE)
+  data.mat.vts <- as.matrix(data.csv.vts)
+  
+  data.file.vf <- paste(data.file,'ts_vf.csv',sep='')
+  data.csv.vf <- read.csv(data.file.vf, header=FALSE)
+  data.mat.vf <- as.matrix(data.csv.vf)
+  
+  subject.evidence.csv <- read.csv(model.data.file, header=FALSE)
+  subject.evidence.mat <- as.matrix(subject.evidence.csv)
+  subject.evidence.mat[,3] <- replace(subject.evidence.mat[,3], subject.evidence.mat[,3] == 2, 0)
+  
+  likelihoods <- compute.log.likelihoods(evidence = subject.evidence.mat[,3], expectation.mean.vts = data.mat.vts[,1], expectation.sd.vts = data.mat.vts[,2], expectation.mean.vf = data.mat.vf[,1], expectation.sd.vf = data.mat.vf[,2])
+  
+  log.likelihood.vts.sum <- likelihoods[[1]]
+  log.likelihood.vf.sum <- likelihoods[[2]]
+  
+  par(mfcol=c(2,2), oma = c(1, 1, 0, 0), mar = c(3, 2.5, 2, 2), mgp = c(1.6, 0.6, 0), xpd = FALSE)
+  
+  #Plot expection for the time series volatility model
+  plot(x = data.mat.vts[,1], ylim = c(0,1),type='l',lwd=3,xlab='Trials',ylab='Expectation (r)', main='Time-series Volatility')
+  points(x = data.mat.vts[,1] + data.mat.vts[,2], type='l')
+  points(x = data.mat.vts[,1] - data.mat.vts[,2], type='l')
+  
+  #Plot actual action taken by subject
+  plot(x = subject.evidence.mat[,3], ylim = c(0,1),type='l',lwd=3,xlab='Trials',ylab='Action (a)')
+  
+  #Plot expection for the fixed volatility model
+  plot(x = data.mat.vf[,1], ylim = c(0,1),type='l',lwd=3,xlab='Trials',ylab='Expectation (r)', main='Fixed Volatility')
+  points(x = data.mat.vf[,1] + data.mat.vf[,2], type='l')
+  points(x = data.mat.vf[,1] - data.mat.vf[,2], type='l')
+  
+  #Plot actual action taken by subject
+  plot(x = subject.evidence.mat[,3], ylim = c(0,1),type='l',lwd=3,xlab='Trials',ylab='Action (a)')
+  
+}
+
+compute.log.likelihoods <- function(evidence, expectation.mean.vts, expectation.sd.vts, expectation.mean.vf, expectation.sd.vf){
+  p.evidence.vts <- 0
+  p.evidence.vf <- 0
+  
+  log.likelihood.vts.sum <- 0
+  log.likelihood.vf.sum <- 0
+  
+  for(i in 1:100){
+    x <- evidence[i]
+    
+    vts.mu <- expectation.mean.vts[i]
+    vts.sd <- expectation.sd.vts[i]
+    
+    p.evidence.vts <- dnorm(x, vts.mu, vts.sd)
+    
+    if(p.evidence.vts > 0)
+      log.likelihood.vts.sum <- log.likelihood.vts.sum + log(p.evidence.vts)
+    
+    vf.mu <- expectation.mean.vf[i]
+    vf.sd <- expectation.sd.vf[i]
+    
+    p.evidence.vf <- dnorm(x, vf.mu, vf.sd)
+    
+    if(p.evidence.vf > 0)
+      log.likelihood.vf.sum <- log.likelihood.vf.sum + log(p.evidence.vf)
+  }
+  
+  return(list(log.likelihood.vts.sum, log.likelihood.vf.sum))
+}
+
+
 #' run.all.models
 #'
 #' Automates process of running all the combinations of models for every subject
