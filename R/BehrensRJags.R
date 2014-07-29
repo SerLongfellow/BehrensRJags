@@ -1,11 +1,8 @@
 
-
-plot.subject.results <- function(model.results.dir, model.data.dir, subject.number, type) {
-  
-  set.seed(1234)
+generate.data.matrices <- function(model.results.dir, model.data.dir, subject.number, type) {
   
   if(type != 'social' && type != 'house'){
-    print("Please input a valid type, social or house.")
+    print("Please input a valid type (social or house).")
     return
   }
   
@@ -30,110 +27,289 @@ plot.subject.results <- function(model.results.dir, model.data.dir, subject.numb
   subject.evidence.mat <- as.matrix(subject.evidence.csv)
   subject.evidence.mat[,3] <- replace(subject.evidence.mat[,3], subject.evidence.mat[,3] == 2, 0)
   
-  likelihoods <- compute.log.likelihoods(evidence = subject.evidence.mat[,3], expectation.mean.vts = data.mat.vts[,1], expectation.sd.vts = data.mat.vts[,2], expectation.mean.vf = data.mat.vf[,1], expectation.sd.vf = data.mat.vf[,2])
+  return(list(data.mat.vts, data.mat.vf, subject.evidence.mat))
+}
+
+plot.subject.results <- function(model.results.dir, model.data.dir, subject.number, type) {
   
-  log.likelihood.vts.sum <- likelihoods[[1]]
-  log.likelihood.vf.sum <- likelihoods[[2]]
+  set.seed(1234)
+
+  mat.list <- generate.data.matrices(model.results.dir, model.data.dir, subject.number, type)
+
+  data.mat.vts <- mat.list[[1]]
+  data.mat.vf <- mat.list[[2]]
+  subject.evidence.mat <- mat.list[[3]]
   
+  e <- subject.evidence.mat[,4]
+  a <- subject.evidence.mat[,3]
+  
+  
+  #------------Set up variables for plotting volatility time series model--------------------------
+  
+  delta.mean.vts <- data.mat.vts[,3]
+  epsilon.mean.vts <- data.mat.vts[,5]
+  
+  #Calc beta distribution mean and sd
+  beta.info <- calculate.beta.info(delta.mean.vts, epsilon.mean.vts)
+  
+  e.mean.estimated.vts <- beta.info[[1]]
+  e.sd.estimated.vts <- beta.info[[2]]
+  
+  theta.mean.vts <- data.mat.vts[,7]
+  phi.mean.vts <- data.mat.vts[,9]
+  
+  beta.info <- calculate.beta.info(theta.mean.vts, phi.mean.vts)
+  
+  a.mean.estimated.vts <- beta.info[[1]]
+  a.sd.estimated.vts <- beta.info[[2]]
+  
+  
+  #------------------------------------------------------------------------------------------------
+  
+  
+  #------------Set up variables for plotting volatility fixed model--------------------------------
+  
+  delta.mean.vf <- data.mat.vf[,3]
+  epsilon.mean.vf <- data.mat.vf[,5]
+  
+  beta.info <- calculate.beta.info(delta.mean.vf, epsilon.mean.vf)
+  
+  e.mean.estimated.vf <- beta.info[[1]]
+  e.sd.estimated.vf <- beta.info[[2]]
+  
+  theta.mean.vf <- data.mat.vf[,7]
+  phi.mean.vf <- data.mat.vf[,9]
+  
+  beta.info <- calculate.beta.info(theta.mean.vf, phi.mean.vf)
+  
+  a.mean.estimated.vf <- beta.info[[1]]
+  a.sd.estimated.vf <- beta.info[[2]]
+  
+  #------------------------------------------------------------------------------------------------
+  
+  #Set plotting parameters
   par(mfcol=c(2,2), oma = c(1, 1, 0, 0), mar = c(3, 2.5, 2, 2), mgp = c(1.6, 0.6, 0), xpd = FALSE)
   
-  #Plot expection for the time series volatility model
-  plot(x = data.mat.vts[,1], ylim = c(0,1),type='l',lwd=3,xlab='Trials',ylab='Expectation (r)', main='Time-series Volatility')
-  points(x = data.mat.vts[,1] + data.mat.vts[,2], type='l')
-  points(x = data.mat.vts[,1] - data.mat.vts[,2], type='l')
+  #Plot evidence for time series volatility model
+  plot(x=e, ylim=c(0,1), type='l', lwd=1, col='red', main='Time-Series Volatility')
+  points(x=e.mean.estimated.vts, type='l', lwd=2, col='blue')
+#   points(x=e.mean.estimated.vts + e.sd.estimated.vts, type='l', lwd=1, col='blue')
+#   points(x=e.mean.estimated.vts - e.sd.estimated.vts, type='l', lwd=1, col='blue')
   
-  #Plot actual action taken by subject
-  plot(x = subject.evidence.mat[,3], ylim = c(0,1),type='l',lwd=3,xlab='Trials',ylab='Action (a)')
+  #Plot action for time series volatility model
+  plot(x=a, ylim=c(0,1), type='l', lwd=1, col='red')
+  points(x=a.mean.estimated.vts, type='l', lwd=2, col='blue')
+#   points(x=a.mean.estimated.vts + a.sd.estimated.vts, type='l', lwd=1, col='blue')
+#   points(x=a.mean.estimated.vts - a.sd.estimated.vts, type='l', lwd=1, col='blue')
   
-  #Plot expection for the fixed volatility model
-  plot(x = data.mat.vf[,1], ylim = c(0,1),type='l',lwd=3,xlab='Trials',ylab='Expectation (r)', main='Fixed Volatility')
-  points(x = data.mat.vf[,1] + data.mat.vf[,2], type='l')
-  points(x = data.mat.vf[,1] - data.mat.vf[,2], type='l')
+  #Plot evidence for fixed volatility model
+  plot(x=e, ylim=c(0,1), type='l', lwd=1, col='red', main='Fixed Volatility')
+  points(x=e.mean.estimated.vf, type='l', lwd=2, col='blue')
+#   points(x=e.mean.estimated.vf + e.sd.estimated.vf, type='l', lwd=1, col='blue')
+#   points(x=e.mean.estimated.vf - e.sd.estimated.vf, type='l', lwd=1, col='blue')
   
-  #Plot actual action taken by subject
-  plot(x = subject.evidence.mat[,3], ylim = c(0,1),type='l',lwd=3,xlab='Trials',ylab='Action (a)')
+  #Plot action for fixed volatility model
+  plot(x=a, ylim=c(0,1), type='l', lwd=1, col='red')
+  points(x=a.mean.estimated.vf, type='l', lwd=2, col='blue')
+#   points(x=a.mean.estimated.vf + a.sd.estimated.vf, type='l', lwd=1, col='blue')
+#   points(x=a.mean.estimated.vf - a.sd.estimated.vf, type='l', lwd=1, col='blue')
   
 }
 
-compute.log.likelihoods <- function(evidence, expectation.mean.vts, expectation.sd.vts, expectation.mean.vf, expectation.sd.vf){
-  p.evidence.vts <- 0
-  p.evidence.vf <- 0
+compute.log.likelihoods <- function(model.results.dir, model.data.dir, subject.number, type){#evidence, actions, delta.vts, epsilon.vts, theta.vts, phi.vts, delta.vf, epsilon.vf, theta.vf, phi.vf){
   
   log.likelihood.vts.sum <- 0
   log.likelihood.vf.sum <- 0
+
+  mat.list <- generate.data.matrices(model.results.dir, model.data.dir, subject.number, type)
+  
+  data.file <- NULL
+  if(subject.number < 10){
+    data.file <- paste(model.data.dir,'/subj_00',subject.number,'_',type,'.csv',sep='')
+  }
+  else{
+    data.file <- paste(model.data.dir,'/subj_0',subject.number,'_',type,'.csv',sep='')
+  }
+
+  data.mat.vts <- mat.list[[1]]
+  data.mat.vf <- mat.list[[2]]
+  subject.evidence.mat <- mat.list[[3]]
+  
+  evidence <- subject.evidence.mat[,4]
+  actions <- subject.evidence.mat[,3]
+  
+  
+  #------------Set up variables for plotting volatility time series model--------------------------
+  
+  delta.mean.vts <- data.mat.vts[,3]
+  epsilon.mean.vts <- data.mat.vts[,5]
+  
+  #Calc beta distribution mean and sd
+  beta.info <- calculate.beta.info(delta.mean.vts, epsilon.mean.vts)
+  
+  e.mean.estimated.vts <- beta.info[[1]]
+  e.sd.estimated.vts <- beta.info[[2]]
+  
+  theta.mean.vts <- data.mat.vts[,7]
+  phi.mean.vts <- data.mat.vts[,9]
+  
+  #Calc beta distribution mean and sd
+  beta.info <- calculate.beta.info(theta.mean.vts, phi.mean.vts)
+  
+  a.mean.estimated.vts <- beta.info[[1]]
+  a.sd.estimated.vts <- beta.info[[2]]
+  
+  #------------------------------------------------------------------------------------------------
+  
+  
+  #------------Set up variables for plotting volatility fixed model--------------------------------
+  
+  delta.mean.vf <- data.mat.vf[,3]
+  epsilon.mean.vf <- data.mat.vf[,5]
+  
+  #Calc beta distribution mean and sd
+  beta.info <- calculate.beta.info(delta.mean.vf, epsilon.mean.vf)
+  
+  e.mean.estimated.vf <- beta.info[[1]]
+  e.sd.estimated.vf <- beta.info[[2]]
+  
+  theta.mean.vf <- data.mat.vf[,7]
+  phi.mean.vf <- data.mat.vf[,9]
+  
+  #Calc beta distribution mean and sd
+  beta.info <- calculate.beta.info(theta.mean.vf, phi.mean.vf)
+  
+  a.mean.estimated.vf <- beta.info[[1]]
+  a.sd.estimated.vf <- beta.info[[2]]
+  
+  #------------------------------------------------------------------------------------------------
   
   for(i in 1:100){
-    x <- evidence[i]
     
-    vts.mu <- expectation.mean.vts[i]
-    vts.sd <- expectation.sd.vts[i]
+    e <- evidence[i]
+    a <- actions[i]
     
-    p.evidence.vts <- dnorm(x, vts.mu, vts.sd)
+    #--------------------------Volatility time series model calculations ---------------------
     
-    if(p.evidence.vts > 0)
-      log.likelihood.vts.sum <- log.likelihood.vts.sum + log(p.evidence.vts)
+    #Find likelihood for evidence variable 
+    #e.p.vts <- dbeta(e, delta.mean.vts[i], epsilon.mean.vts[i])
+    e.p.vts <- dnorm(e, e.mean.estimated.vts[i], e.sd.estimated.vts[i])
+    log.l.e <- 0
     
-    vf.mu <- expectation.mean.vf[i]
-    vf.sd <- expectation.sd.vf[i]
+    if(e.p.vts != 0)
+      log.l.e <- log(e.p.vts)
+
+    #Find likelihood for action variable
+    #a.p.vts <- dbeta(a, theta.mean.vts[i], phi.mean.vts[i])
+    a.p.vts <- dnorm(a, a.mean.estimated.vts[i], a.sd.estimated.vts[i])
+    log.l.a <- 0
     
-    p.evidence.vf <- dnorm(x, vf.mu, vf.sd)
+    if(a.p.vts != 0)
+      log.l.a <- log(a.p.vts)
     
-    if(p.evidence.vf > 0)
-      log.likelihood.vf.sum <- log.likelihood.vf.sum + log(p.evidence.vf)
+    #Add both to overall log likelihood
+    log.likelihood.vts.sum <- log.likelihood.vts.sum + log.l.e + log.l.a
+    #-----------------------------------------------------------------------------------------
+    
+    
+    #-----------------------------------Volatility fixed model calculations-------------------
+    
+    #Find likelihood for evidence variable 
+    #e.p.vf <- dbeta(e, delta.mean.vf[i], epsilon.mean.vf[i])
+    e.p.vf <- dnorm(e, e.mean.estimated.vf[i], e.sd.estimated.vf[i])
+    log.l.e <- 0
+    
+    if(e.p.vf != 0)
+      log.l.e <- log(e.p.vf)
+    
+    #Find likelihood for action variable
+    #a.p.vf <- dbeta(a, theta.mean.vf[i], phi.mean.vf[i])
+    a.p.vf <- dnorm(a, a.mean.estimated.vf[i], a.sd.estimated.vf[i])
+    log.l.a <- 0
+    
+    if(a.p.vf != 0)
+      log.l.a <- log(a.p.vf)
+    
+    #Add both to overall log likelihood
+    log.likelihood.vf.sum <- log.likelihood.vf.sum + log.l.e + log.l.a
+    
+    #-------------------------------------------------------------------------------------------
   }
+  
+  #---------------------Get AICs----------------------------------------------------------------
+  
+  aic.list <- calculate.aic(log.likelihood.vts.sum, log.likelihood.vf.sum)
+  
+  aic.vts <- aic.list[1]
+  aic.vf <- aic.list[2]
+  
+  #---------------------------------------------------------------------------------------------
+  
+  #---------------------Generate output files---------------------------------------------------
+  
+  data.in.file.length <- nchar(data.file)
+  
+  output.dir <- paste(getwd(),'/likelihoods',sep='')
+  dir.create(output.dir, showWarnings = FALSE)
+
+  data.out <- data.frame(log.likelihood.vts.sum, aic.vts, log.likelihood.vf.sum, aic.vf)
+   
+  data.out.file.name = paste(substr(data.file, data.in.file.length - 18, data.in.file.length - 4), '_likelihoods.csv', sep="")
+  
+  data.out.file.path = paste('/likelihoods/', data.out.file.name, sep="")
+  data.out.file.path = paste(getwd(), data.out.file.path, sep="")
+
+  print(paste("Writing file", data.out.file.path))
+  write.table(data.out, file=data.out.file.path, row.names=FALSE, col.names=FALSE, sep=',')
+  
+  print('Done!')
+
+  #----------------------------------------------------------------------------------------------
+  
   
   return(list(log.likelihood.vts.sum, log.likelihood.vf.sum))
 }
 
-calculate.aic <- function(log.likelihood.vts, log.likelihood.vf){
+calculate.beta.info <- function(alpha, beta){
   
+  mean <- 0
+  
+  ifelse(alpha + beta != 0, mean <- ((alpha) / (alpha + beta)), mean <- 0)
+  
+  sd <- 0
+  var <- 0
+
+  denom <- ((alpha + beta)^2) * (alpha + beta + 1)
+  
+  ifelse(denom != 0, var <- ((alpha * beta) / denom), var <- 0)
+  ifelse(var != 0, sd <- sqrt(var), sd <- 0)
+  
+  return(list(mean, sd))
+  
+}
+
+calculate.aic <- function(log.likelihood.vts, log.likelihood.vf){
+  num.params.vts <- 405
+  num.params.vf <- 304
+  
+  aic.vts <- (2 * num.params.vts) - (2 * log.likelihood.vts)
+  aic.vf <- (2 * num.params.vf) - (2 * log.likelihood.vf)
+  
+  return(c(aic.vts, aic.vf))
 }
 
 calculate.bic <- function(log.likelihood.vts, log.likelihood.vf){
   
 }
 
-calculate.all.criterion <- function(model.results.dir){
+calculate.all.likelihoods <- function(model.results.dir, model.data.dir){
   
   range <- c(5,6,8,10,11,13,15,16,18,19,20,seq(23,28),30,31,seq(33,36),39,40,seq(42,45))
   
   for(i in range){
     
-    for(j in c(1,2)){
-      
-      if(j == 1)
-        type <- 'social'
-      else
-        type <- 'house'
-      
-      data.social.file <- NULL
-      data.house.file <- NULL
-      
-      if(subject.number < 10){
-        data.file <- paste(model.results.dir,'/subj_00',i,'_',type,'_results_',sep='')
-        model.data.file <- paste(model.data.dir,'/subj_00',i,'_',type,'.csv',sep='')
-      }
-      else{
-        data.file <- paste(model.results.dir,'/subj_0',i,'_',type,'_results_',sep='')
-        model.data.file <- paste(model.data.dir,'/subj_0',i,'_',type,'.csv',sep='')
-      }
-      
-      data.file.vts <- paste(data.file,'ts_vts.csv',sep='')
-      data.csv.vts <- read.csv(data.file.vts, header=FALSE)
-      data.mat.vts <- as.matrix(data.csv.vts)
-      
-      data.file.vf <- paste(data.file,'ts_vf.csv',sep='')
-      data.csv.vf <- read.csv(data.file.vf, header=FALSE)
-      data.mat.vf <- as.matrix(data.csv.vf)
-      
-      subject.evidence.csv <- read.csv(model.data.file, header=FALSE)
-      subject.evidence.mat <- as.matrix(subject.evidence.csv)
-      subject.evidence.mat[,3] <- replace(subject.evidence.mat[,3], subject.evidence.mat[,3] == 2, 0)
-      
-      likelihoods <- compute.log.likelihoods(evidence = subject.evidence.mat[,3], expectation.mean.vts = data.mat.vts[,1], expectation.sd.vts = data.mat.vts[,2], expectation.mean.vf = data.mat.vf[,1], expectation.sd.vf = data.mat.vf[,2])
-      
-      log.likelihood.vts.sum <- likelihoods[[1]]
-      log.likelihood.vf.sum <- likelihoods[[2]]
+    for(type in c('social','house')){
+      compute.log.likelihoods(model.results.dir = model.results.dir, model.data.dir = model.data.dir, subject.number = i, type = type)
     } 
   }
 }
@@ -210,10 +386,10 @@ run.model <- function(volatility.fixed=FALSE, model.file, data.file, n.chains, n
   model.data <- list(a = dataMat[,3], e = dataMat[,4], N = 100)
   
   if(volatility.fixed == FALSE){
-    monitors <- c('r','v','k','beta.e','beta.a')
+    monitors <- c('r','v','delta','epsilon','theta','phi','k','beta.e','beta.a')
   }
   else{
-    monitors <- c('r','v','beta.e','beta.a')
+    monitors <- c('r','v','delta','epsilon','theta','phi','beta.e','beta.a')
   }
   
   model.fit <- jags(model.file = model.file, data = model.data, parameters.to.save = monitors, n.chains = 1, n.iter = n.samples, n.burnin = n.burnin)
@@ -228,6 +404,22 @@ run.model <- function(volatility.fixed=FALSE, model.file, data.file, n.chains, n
   v.results <- jagsresults(x = model.fit, params = c('v'))
   v.mean <- v.results[,c('mean')]
   v.sd <- v.results[,c('sd')]
+  
+  delta.results <- jagsresults(x = model.fit, params = c('delta'))
+  delta.mean <- delta.results[,c('mean')]
+  delta.sd <- delta.results[,c('sd')]
+  
+  epsilon.results <- jagsresults(x = model.fit, params = c('epsilon'))
+  epsilon.mean <- epsilon.results[,c('mean')]
+  epsilon.sd <- epsilon.results[,c('sd')]
+  
+  theta.results <- jagsresults(x = model.fit, params = c('theta'))
+  theta.mean <- theta.results[,c('mean')]
+  theta.sd <- theta.results[,c('sd')]
+  
+  phi.results <- jagsresults(x = model.fit, params = c('phi'))
+  phi.mean <- phi.results[,c('mean')]
+  phi.sd <- phi.results[,c('sd')]
   
   k.results <- jagsresults(x = model.fit, params = c('k'))
   k.mean <- k.results[,c('mean')]
@@ -247,14 +439,14 @@ run.model <- function(volatility.fixed=FALSE, model.file, data.file, n.chains, n
   dir.create(output.dir, showWarnings = FALSE)
   
   if(volatility.fixed == FALSE){
-    data.out.time.series <- data.frame(r.mean, r.sd, v.mean, v.sd)
+    data.out.time.series <- data.frame(r.mean, r.sd, delta.mean, delta.sd, epsilon.mean, epsilon.sd, theta.mean, theta.sd, phi.mean, phi.sd, v.mean, v.sd)
     data.out.stationary <- data.frame(k.mean, k.sd, beta.e.mean, beta.e.sd, beta.a.mean, beta.a.sd)
     
     data.out.time.series.file.name = paste(substr(data.file, data.in.file.length - 18, data.in.file.length - 4), '_results_ts_vts.csv', sep="")
     data.out.stationary.file.name = paste(substr(data.file, data.in.file.length - 18, data.in.file.length - 4), '_results_s_vts.csv', sep="")
   }
   else {
-    data.out.time.series <- data.frame(r.mean, r.sd)
+    data.out.time.series <- data.frame(r.mean, r.sd, delta.mean, delta.sd, epsilon.mean, epsilon.sd, theta.mean, theta.sd, phi.mean, phi.sd)
     data.out.stationary <- data.frame(v.mean, v.sd, beta.e.mean, beta.e.sd, beta.a.mean, beta.a.sd)
     
     data.out.time.series.file.name = paste(substr(data.file, data.in.file.length - 18, data.in.file.length - 4), '_results_ts_vf.csv', sep="")
