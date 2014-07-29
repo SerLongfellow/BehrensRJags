@@ -314,6 +314,38 @@ calculate.all.likelihoods <- function(model.results.dir, model.data.dir){
   }
 }
 
+average.aic <- function(likelihood.dir){
+  
+  aic.vts <- 0
+  aic.vf <- 0
+  
+  range <- c(5,6,8,10,11,13,15,16,18,19,20,seq(23,28),30,31,seq(33,36),39,40,seq(42,45))
+  
+  for(subject.number in range){
+    
+    for(type in c('social','house')){
+      
+      if(subject.number < 10){
+        data.file <- paste(likelihood.dir,'/subj_00',subject.number,'_',type,'_likelihoods.csv',sep='')
+      }
+      else{
+        data.file <- paste(likelihood.dir,'/subj_0',subject.number,'_',type,'_likelihoods.csv',sep='')
+      }
+      
+      data.csv <- read.csv(data.file, header=FALSE)
+      data.mat <- as.matrix(data.csv)
+      
+      aic.vts <- aic.vts + data.mat[2]
+      aic.vf <- aic.vf + data.mat[4]
+    } 
+  }
+  
+  aic.vts <- aic.vts / length(range)
+  aic.vf <- aic.vf / length(range)
+  
+  return(c(aic.vts, aic.vf))
+}
+
 
 #' run.all.models
 #'
