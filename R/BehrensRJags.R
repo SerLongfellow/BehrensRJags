@@ -1,4 +1,6 @@
 
+
+
 generate.data.matrices <- function(model.results.dir, model.data.dir, subject.number, type) {
   
   if(type != 'social' && type != 'house'){
@@ -43,7 +45,6 @@ plot.subject.results <- function(model.results.dir, model.data.dir, subject.numb
   e <- subject.evidence.mat[,4]
   a <- subject.evidence.mat[,3]
   
-  
   #------------Set up variables for plotting volatility time series model--------------------------
   
   delta.mean.vts <- data.mat.vts[,3]
@@ -86,6 +87,17 @@ plot.subject.results <- function(model.results.dir, model.data.dir, subject.numb
   a.sd.estimated.vf <- beta.info[[2]]
   
   #------------------------------------------------------------------------------------------------
+  
+  #Make the evidence in terms of the left face, conditioned on the action
+  for(i in 1:100){
+    
+    if(a[i] == 0){
+      
+      e[i] <- 1 - e[i]
+      e.mean.estimated.vts[i] <- 1 - e.mean.estimated.vts[i]
+      e.mean.estimated.vf[i] <- 1 - e.mean.estimated.vf[i]
+    }
+  }
   
   #Set plotting parameters
   par(mfcol=c(2,2), oma = c(1, 1, 0, 0), mar = c(3, 2.5, 2, 2), mgp = c(1.6, 0.6, 0), xpd = FALSE)
@@ -186,6 +198,13 @@ compute.log.likelihoods <- function(model.results.dir, model.data.dir, subject.n
   
   for(i in 1:100){
     
+    if(actions[i] == 0){
+      
+      evidence[i] <- 1 - evidence[i]
+      e.mean.estimated.vts[i] <- 1 - e.mean.estimated.vts[i]
+      e.mean.estimated.vf[i] <- 1 - e.mean.estimated.vf[i]
+    }
+    
     e <- evidence[i]
     a <- actions[i]
     
@@ -267,7 +286,7 @@ compute.log.likelihoods <- function(model.results.dir, model.data.dir, subject.n
   #----------------------------------------------------------------------------------------------
   
   
-  return(list(log.likelihood.vts.sum, log.likelihood.vf.sum))
+  return(c(log.likelihood.vts.sum, log.likelihood.vf.sum))
 }
 
 calculate.beta.info <- function(alpha, beta){
