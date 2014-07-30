@@ -47,15 +47,15 @@ plot.subject.results <- function(model.results.dir, model.data.dir, subject.numb
   
   #------------Set up variables for plotting volatility time series model--------------------------
   
-  delta.mean.vts <- data.mat.vts[,3]
-  epsilon.mean.vts <- data.mat.vts[,5]
-  
-  #Calc beta distribution mean and sd
-  beta.info <- calculate.beta.info(delta.mean.vts, epsilon.mean.vts)
-  
-  e.mean.estimated.vts <- beta.info[[1]]
-  e.sd.estimated.vts <- beta.info[[2]]
-  
+#   delta.mean.vts <- data.mat.vts[,3]
+#   epsilon.mean.vts <- data.mat.vts[,5]
+#   
+#   #Calc beta distribution mean and sd
+#   beta.info <- calculate.beta.info(delta.mean.vts, epsilon.mean.vts)
+#   
+#   e.mean.estimated.vts <- beta.info[[1]]
+#   e.sd.estimated.vts <- beta.info[[2]]
+#   
   theta.mean.vts <- data.mat.vts[,7]
   phi.mean.vts <- data.mat.vts[,9]
   
@@ -70,13 +70,13 @@ plot.subject.results <- function(model.results.dir, model.data.dir, subject.numb
   
   #------------Set up variables for plotting volatility fixed model--------------------------------
   
-  delta.mean.vf <- data.mat.vf[,3]
-  epsilon.mean.vf <- data.mat.vf[,5]
-  
-  beta.info <- calculate.beta.info(delta.mean.vf, epsilon.mean.vf)
-  
-  e.mean.estimated.vf <- beta.info[[1]]
-  e.sd.estimated.vf <- beta.info[[2]]
+#   delta.mean.vf <- data.mat.vf[,3]
+#   epsilon.mean.vf <- data.mat.vf[,5]
+#   
+#   beta.info <- calculate.beta.info(delta.mean.vf, epsilon.mean.vf)
+#   
+#   e.mean.estimated.vf <- beta.info[[1]]
+#   e.sd.estimated.vf <- beta.info[[2]]
   
   theta.mean.vf <- data.mat.vf[,7]
   phi.mean.vf <- data.mat.vf[,9]
@@ -88,47 +88,49 @@ plot.subject.results <- function(model.results.dir, model.data.dir, subject.numb
   
   #------------------------------------------------------------------------------------------------
   
-  #Make the evidence in terms of the left face, conditioned on the action
-  for(i in 1:100){
-    
-    if(a[i] == 0){
-      
-      e[i] <- 1 - e[i]
-      e.mean.estimated.vts[i] <- 1 - e.mean.estimated.vts[i]
-      e.mean.estimated.vf[i] <- 1 - e.mean.estimated.vf[i]
-    }
-  }
+#   #Make the evidence in terms of the left face, conditioned on the action
+#   for(i in 1:100){
+#     
+#     if(a[i] == 0){
+#       
+#       e[i] <- 1 - e[i]
+#       e.mean.estimated.vts[i] <- 1 - e.mean.estimated.vts[i]
+#       e.mean.estimated.vf[i] <- 1 - e.mean.estimated.vf[i]
+#     }
+#   }
   
   #Set plotting parameters
-  par(mfcol=c(2,2), oma = c(1, 1, 0, 0), mar = c(3, 2.5, 2, 2), mgp = c(1.6, 0.6, 0), xpd = FALSE)
+  par(mfcol=c(1,2), oma = c(1, 1, 0, 0), mar = c(3, 2.5, 2, 2), mgp = c(1.6, 0.6, 0), xpd = FALSE)
   
-  #Plot evidence for time series volatility model
-  plot(x=e, ylim=c(0,1), type='l', lwd=1, col='red', main='Time-Series Volatility')
-  points(x=e.mean.estimated.vts, type='l', lwd=2, col='blue')
-#   points(x=e.mean.estimated.vts + e.sd.estimated.vts, type='l', lwd=1, col='blue')
-#   points(x=e.mean.estimated.vts - e.sd.estimated.vts, type='l', lwd=1, col='blue')
+#   #Plot evidence for time series volatility model
+#   plot(x=e, ylim=c(0,1), type='l', lwd=1, col='red', main='Time-Series Volatility')
+#   points(x=e.mean.estimated.vts, type='l', lwd=2, col='blue')
+# #   points(x=e.mean.estimated.vts + e.sd.estimated.vts, type='l', lwd=1, col='blue')
+# #   points(x=e.mean.estimated.vts - e.sd.estimated.vts, type='l', lwd=1, col='blue')
   
   #Plot action for time series volatility model
-  plot(x=a, ylim=c(0,1), type='l', lwd=1, col='red')
+  plot(x=a, ylim=c(0,1), type='l', lwd=1, col='red', main='Time-Series Volatility',xlab='Trial',ylab='Action')
   points(x=a.mean.estimated.vts, type='l', lwd=2, col='blue')
+ # legend(85, 0.1, c('Actual action taken', 'Estimated belief'), lty=c(1,1), lwd=c(1,2), col=c('red','blue'))
 #   points(x=a.mean.estimated.vts + a.sd.estimated.vts, type='l', lwd=1, col='blue')
 #   points(x=a.mean.estimated.vts - a.sd.estimated.vts, type='l', lwd=1, col='blue')
   
-  #Plot evidence for fixed volatility model
-  plot(x=e, ylim=c(0,1), type='l', lwd=1, col='red', main='Fixed Volatility')
-  points(x=e.mean.estimated.vf, type='l', lwd=2, col='blue')
-#   points(x=e.mean.estimated.vf + e.sd.estimated.vf, type='l', lwd=1, col='blue')
-#   points(x=e.mean.estimated.vf - e.sd.estimated.vf, type='l', lwd=1, col='blue')
+#   #Plot evidence for fixed volatility model
+#   plot(x=e, ylim=c(0,1), type='l', lwd=1, col='red', main='Fixed Volatility')
+#   points(x=e.mean.estimated.vf, type='l', lwd=2, col='blue')
+# #   points(x=e.mean.estimated.vf + e.sd.estimated.vf, type='l', lwd=1, col='blue')
+# #   points(x=e.mean.estimated.vf - e.sd.estimated.vf, type='l', lwd=1, col='blue')
   
   #Plot action for fixed volatility model
-  plot(x=a, ylim=c(0,1), type='l', lwd=1, col='red')
+  plot(x=a, ylim=c(0,1), type='l', lwd=1, col='red', main='Fixed Volatility',xlab='Trial',ylab='Action')
   points(x=a.mean.estimated.vf, type='l', lwd=2, col='blue')
+ # legend(7, 0.1, c('Actual action taken', 'Estimated belief'), lty=c(1,1), lwd=c(1,2), col=c('red','blue'))
 #   points(x=a.mean.estimated.vf + a.sd.estimated.vf, type='l', lwd=1, col='blue')
 #   points(x=a.mean.estimated.vf - a.sd.estimated.vf, type='l', lwd=1, col='blue')
   
 }
 
-compute.log.likelihoods <- function(model.results.dir, model.data.dir, subject.number, type){#evidence, actions, delta.vts, epsilon.vts, theta.vts, phi.vts, delta.vf, epsilon.vf, theta.vf, phi.vf){
+compute.log.likelihoods <- function(model.results.dir, model.data.dir, subject.number, type){
   
   log.likelihood.vts.sum <- 0
   log.likelihood.vf.sum <- 0
@@ -153,14 +155,14 @@ compute.log.likelihoods <- function(model.results.dir, model.data.dir, subject.n
   
   #------------Set up variables for plotting volatility time series model--------------------------
   
-  delta.mean.vts <- data.mat.vts[,3]
-  epsilon.mean.vts <- data.mat.vts[,5]
-  
-  #Calc beta distribution mean and sd
-  beta.info <- calculate.beta.info(delta.mean.vts, epsilon.mean.vts)
-  
-  e.mean.estimated.vts <- beta.info[[1]]
-  e.sd.estimated.vts <- beta.info[[2]]
+#   delta.mean.vts <- data.mat.vts[,3]
+#   epsilon.mean.vts <- data.mat.vts[,5]
+#   
+#   #Calc beta distribution mean and sd
+#   beta.info <- calculate.beta.info(delta.mean.vts, epsilon.mean.vts)
+#   
+#   e.mean.estimated.vts <- beta.info[[1]]
+#   e.sd.estimated.vts <- beta.info[[2]]
   
   theta.mean.vts <- data.mat.vts[,7]
   phi.mean.vts <- data.mat.vts[,9]
@@ -176,14 +178,14 @@ compute.log.likelihoods <- function(model.results.dir, model.data.dir, subject.n
   
   #------------Set up variables for plotting volatility fixed model--------------------------------
   
-  delta.mean.vf <- data.mat.vf[,3]
-  epsilon.mean.vf <- data.mat.vf[,5]
-  
-  #Calc beta distribution mean and sd
-  beta.info <- calculate.beta.info(delta.mean.vf, epsilon.mean.vf)
-  
-  e.mean.estimated.vf <- beta.info[[1]]
-  e.sd.estimated.vf <- beta.info[[2]]
+#   delta.mean.vf <- data.mat.vf[,3]
+#   epsilon.mean.vf <- data.mat.vf[,5]
+#   
+#   #Calc beta distribution mean and sd
+#   beta.info <- calculate.beta.info(delta.mean.vf, epsilon.mean.vf)
+#   
+#   e.mean.estimated.vf <- beta.info[[1]]
+#   e.sd.estimated.vf <- beta.info[[2]]
   
   theta.mean.vf <- data.mat.vf[,7]
   phi.mean.vf <- data.mat.vf[,9]
@@ -196,38 +198,39 @@ compute.log.likelihoods <- function(model.results.dir, model.data.dir, subject.n
   
   #------------------------------------------------------------------------------------------------
   
-  for(i in 1:100){
+#   for(i in 1:100){
+#     
+#     if(actions[i] == 0){
+#       
+#       evidence[i] <- 1 - evidence[i]
+#       e.mean.estimated.vts[i] <- 1 - e.mean.estimated.vts[i]
+#       e.mean.estimated.vf[i] <- 1 - e.mean.estimated.vf[i]
+#     }
     
-    if(actions[i] == 0){
-      
-      evidence[i] <- 1 - evidence[i]
-      e.mean.estimated.vts[i] <- 1 - e.mean.estimated.vts[i]
-      e.mean.estimated.vf[i] <- 1 - e.mean.estimated.vf[i]
-    }
-    
-    e <- evidence[i]
-    a <- actions[i]
+  e <- evidence[i]
+  a <- actions[i]
     
     #--------------------------Volatility time series model calculations ---------------------
     
     #Find likelihood for evidence variable 
     #e.p.vts <- dbeta(e, delta.mean.vts[i], epsilon.mean.vts[i])
-    e.p.vts <- dnorm(e, e.mean.estimated.vts[i], e.sd.estimated.vts[i])
-    log.l.e <- 0
-    
-    if(e.p.vts != 0)
-      log.l.e <- log(e.p.vts)
+#     e.p.vts <- dnorm(e, e.mean.estimated.vts[i], e.sd.estimated.vts[i])
+#     log.l.e <- 0
+#     
+#     if(e.p.vts != 0)
+#       log.l.e <- log(e.p.vts)
 
     #Find likelihood for action variable
     #a.p.vts <- dbeta(a, theta.mean.vts[i], phi.mean.vts[i])
-    a.p.vts <- dnorm(a, a.mean.estimated.vts[i], a.sd.estimated.vts[i])
-    log.l.a <- 0
+  a.p.vts <- dnorm(a, a.mean.estimated.vts[i], a.sd.estimated.vts[i])
+  log.l.a <- 0
     
-    if(a.p.vts != 0)
-      log.l.a <- log(a.p.vts)
+  if(a.p.vts != 0)
+    log.l.a <- log(a.p.vts)
     
     #Add both to overall log likelihood
-    log.likelihood.vts.sum <- log.likelihood.vts.sum + log.l.e + log.l.a
+#     log.likelihood.vts.sum <- log.likelihood.vts.sum + log.l.e + log.l.a
+  log.likelihood.vts.sum <- log.likelihood.vts.sum + log.l.a
     #-----------------------------------------------------------------------------------------
     
     
@@ -235,25 +238,25 @@ compute.log.likelihoods <- function(model.results.dir, model.data.dir, subject.n
     
     #Find likelihood for evidence variable 
     #e.p.vf <- dbeta(e, delta.mean.vf[i], epsilon.mean.vf[i])
-    e.p.vf <- dnorm(e, e.mean.estimated.vf[i], e.sd.estimated.vf[i])
-    log.l.e <- 0
-    
-    if(e.p.vf != 0)
-      log.l.e <- log(e.p.vf)
+#     e.p.vf <- dnorm(e, e.mean.estimated.vf[i], e.sd.estimated.vf[i])
+#     log.l.e <- 0
+#     
+#     if(e.p.vf != 0)
+#       log.l.e <- log(e.p.vf)
     
     #Find likelihood for action variable
     #a.p.vf <- dbeta(a, theta.mean.vf[i], phi.mean.vf[i])
-    a.p.vf <- dnorm(a, a.mean.estimated.vf[i], a.sd.estimated.vf[i])
-    log.l.a <- 0
+  a.p.vf <- dnorm(a, a.mean.estimated.vf[i], a.sd.estimated.vf[i])
+  log.l.a <- 0
     
-    if(a.p.vf != 0)
-      log.l.a <- log(a.p.vf)
+  if(a.p.vf != 0)
+    log.l.a <- log(a.p.vf)
     
     #Add both to overall log likelihood
-    log.likelihood.vf.sum <- log.likelihood.vf.sum + log.l.e + log.l.a
+  log.likelihood.vf.sum <- log.likelihood.vf.sum + log.l.a
     
     #-------------------------------------------------------------------------------------------
-  }
+  #}
   
   #---------------------Get AICs----------------------------------------------------------------
   
@@ -286,7 +289,7 @@ compute.log.likelihoods <- function(model.results.dir, model.data.dir, subject.n
   #----------------------------------------------------------------------------------------------
   
   
-  return(c(log.likelihood.vts.sum, log.likelihood.vf.sum))
+  #return(c(log.likelihood.vts.sum, log.likelihood.vf.sum))
 }
 
 calculate.beta.info <- function(alpha, beta){
